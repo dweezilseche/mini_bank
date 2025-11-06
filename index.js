@@ -1,290 +1,265 @@
-// Historique des transactions
-let transactions = [];
-
-/*
- * Ajouter une transaction à l'historique
- */
-const addTransaction = (type, idAccount, amount) => {
-  transactions.push({
-    id: crypto.randomUUID(),
-    type,
-    idAccount,
-    amount,
-    date: new Date(),
-  });
-};
-
-/*
- * Récupérer l'historique d'un compte
- */
-const getAccountHistory = (idAccount) => {
-  return transactions.filter((tx) => tx.idAccount === idAccount);
-};
-
-// Style console
-console.log("%cBienvenue dans la Mini Bank", "color: gray;");
-// Fin style console
-
-/*
- * Base de clients
- */
 const clients = [
+  { id: crypto.randomUUID(), firstName: "Alice", lastName: "Dupont" },
+  { id: crypto.randomUUID(), firstName: "Bob", lastName: "Martin" },
+  { id: crypto.randomUUID(), firstName: "Charlie", lastName: "Durand" },
+];
+
+const accounts = [
   {
-    firstName: "John",
-    lastName: "Doe",
-    idClient: crypto.randomUUID(),
+    id: crypto.randomUUID(),
+    clientId: clients[0].id,
+    balance: 5000,
+    transactions: [],
   },
   {
-    firstName: "Louis",
-    lastName: "Garel",
-    idClient: crypto.randomUUID(),
+    id: crypto.randomUUID(),
+    clientId: clients[1].id,
+    balance: 3000,
+    transactions: [],
   },
   {
-    firstName: "Jean",
-    lastName: "Dujardin",
-    idClient: crypto.randomUUID(),
+    id: crypto.randomUUID(),
+    clientId: clients[2].id,
+    balance: 7000,
+    transactions: [],
   },
 ];
 
-/*
- * Base de comptes bancaires
- */
-let accounts = [
-  {
-    idAccount: crypto.randomUUID(),
-    balance: 10,
-    idClient: clients[0].idClient,
-  },
-  {
-    idAccount: crypto.randomUUID(),
-    balance: 15,
-    idClient: clients[0].idClient,
-  },
-  {
-    idAccount: crypto.randomUUID(),
-    balance: 200,
-    idClient: clients[1].idClient,
-  },
-  {
-    idAccount: crypto.randomUUID(),
-    balance: 55,
-    idClient: clients[2].idClient,
-  },
-  {
-    idAccount: crypto.randomUUID(),
-    balance: 32,
-    idClient: clients[1].idClient,
-  },
-];
+const isValidAmount = (amount) =>
+  typeof amount === "number" && !isNaN(amount) && amount > 0;
 
-/*
- * Création d'un nouveau client
- */
-const createNewClient = (firstName, lastName) => {
-  const newClient = { firstName, lastName, idClient: crypto.randomUUID() };
+const findAccountById = (accountId) =>
+  accounts.find((account) => account.id === accountId);
+
+const createClient = (firstName, lastName) => {
+  const newClient = { id: crypto.randomUUID(), firstName, lastName };
   clients.push(newClient);
 
-  return newClient.idClient;
+  return newClient.id;
 };
 
-/*
- * Création d'un nouveau compte bancaire
- */
-/*
- * Création d'un nouveau compte bancaire
- */
-const createNewAccount = (idClient, balance) => {
-  const existingClient = clients.some((client) => client.idClient === idClient);
+const createAccount = (clientId, initialBalance) => {
+  const client = clients.find((c) => c.id === clientId);
 
-  if (!existingClient) {
-    console.error("Erreur: L'identifiant du client n'est pas correct");
-    return;
+  if (!client) {
+    throw new Error("Client not found.");
   }
 
-  const newAccount = { idAccount: crypto.randomUUID(), balance, idClient };
+  if (!isValidAmount(initialBalance)) {
+    throw new Error("Initial balance is not valid.");
+  }
+
+  const newAccount = {
+    id: crypto.randomUUID(),
+    clientId,
+    balance: initialBalance,
+    transactions: [],
+  };
   accounts.push(newAccount);
 
-  return newAccount.idAccount;
+  return newAccount.id;
 };
 
-/*
- * Récupérer les comptes d'un client
- */
-const getAccountsByClient = (idClient) => {
-  const existingClient = clients.some((client) => client.idClient === idClient);
-
-  if (!existingClient) {
-    console.error("Le client n'existe pas");
-    return;
-  }
-
-  const accountClient = accounts.filter(
-    (account) => account.idClient === idClient
-  );
-
-  return accountClient;
-};
-
-/*
- * Supprimer un compte bancaire
- */
-const deleteAccount = (idAccount) => {
-  const findAccountById = accounts.find(
-    (account) => account.idAccount === idAccount
-  );
-
-  if (!findAccountById) {
-    console.error("Le compte n'existe pas");
-    return false;
-  } else if (findAccountById.balance > 0) {
-    console.error("Il y'a encore de l'argent sur le compte");
-    return false;
-  }
-
-  accounts = accounts.filter((account) => account.idAccount !== idAccount);
-  console.log("Compte supprimé avec succès");
-  return true;
-};
-
-/*
- * Déposer de l'argent sur le compte d'un client
- */
-const deposit = (idAccount, amount) => {
-  const findAccountById = accounts.find(
-    (account) => account.idAccount === idAccount
-  );
-
-  if (!findAccountById) {
-    console.error("Le compte n'existe pas");
-    return false;
-  }
-
-  accounts = accounts.map((account) => {
-    if (account.idAccount === idAccount) {
-      return {
-        ...account,
-        balance: account.balance + amount,
-      };
-    } else {
-      return account;
-    }
-  });
-
-  addTransaction("deposit", idAccount, amount);
-  return findAccountById.balance + amount;
-};
-
-/*
- * Retirer de l'argent sur le compte d'un client
- */
-const withdrawal = (idAccount, amountToRemove) => {
-  const findAccountById = accounts.find(
-    (account) => account.idAccount === idAccount
-  );
-
-  if (!findAccountById) {
-    console.error("Le compte n'existe pas");
-    return false;
-  } else if (findAccountById.balance < amountToRemove) {
-    console.error("Le solde du compte n'est pas suffisant");
-    return false;
-  }
-
-  accounts = accounts.map((account) => {
-    if (account.idAccount === idAccount) {
-      return {
-        ...account,
-        balance: account.balance - amountToRemove,
-      };
-    } else {
-      return account;
-    }
-  });
-
-  addTransaction("withdrawal", idAccount, amountToRemove);
-  return findAccountById.balance - amountToRemove;
-};
-
-/*
- * Transférer de l'argent entre deux comptes
- */
-const transfer = (idAccountSender, idAccountReceiver, amountToTransfer) => {
-  const findAccountById = (id) =>
-    accounts.find((account) => account.idAccount === id);
-
-  const sender = findAccountById(idAccountSender);
-  const receiver = findAccountById(idAccountReceiver);
-
-  if (!sender || !receiver) {
-    console.error("Un des deux comptes n'est pas valide");
-    return false;
-  }
-
-  if (sender.balance < amountToTransfer) {
-    console.error("Le solde du compte envoyeur n'est pas suffisant");
-    return false;
-  }
-
-  accounts = accounts.map((account) => {
-    if (account.idAccount === idAccountSender) {
-      return { ...account, balance: account.balance - amountToTransfer };
-    }
-    if (account.idAccount === idAccountReceiver) {
-      return { ...account, balance: account.balance + amountToTransfer };
-    }
-    return account;
-  });
-
-  addTransaction("transfer", idAccountSender, -amountToTransfer, {
-    to: idAccountReceiver,
-  });
-  addTransaction("transfer", idAccountReceiver, amountToTransfer, {
-    from: idAccountSender,
-  });
-  return true;
-};
-
-/*
- * Afficher le solde d'un compte pour un client donné
- */
-const accountBalance = (idClient, idAccount) => {
-  const account = accounts.find(
-    (acc) => acc.idAccount === idAccount && acc.idClient === idClient
-  );
+const deleteAccount = (accountId) => {
+  const index = accounts.findIndex((account) => account.id === accountId);
+  const account = index !== -1 ? accounts[index] : null;
 
   if (!account) {
-    console.error("Informations erronées");
-    return false;
+    throw new Error("Account not found.");
   }
 
-  return account.balance;
+  if (account.balance > 0) {
+    throw new Error("Cannot delete account with a positive balance.");
+  }
+
+  accounts.splice(index, 1);
 };
 
-/*
- * Afficher le solde total d'un client
- */
-const globalClientBalance = (idClient) => {
-  const findClientById = clients.find((client) => client.idClient === idClient);
-
-  if (!findClientById) {
-    console.error("L'identifiant client est incorrecte");
-    return false;
+const deposit = (accountId, amount) => {
+  if (!isValidAmount(amount)) {
+    throw new Error("Deposit amount is not valid.");
   }
 
-  const clientAccounts = accounts.filter(
-    (account) => account.idClient === idClient
+  const account = findAccountById(accountId);
+  if (!account) {
+    throw new Error("Account not found.");
+  }
+
+  account.balance += amount;
+  account.transactions.push({ type: "deposit", amount, date: new Date() });
+};
+
+const withdraw = (accountId, amount) => {
+  if (!isValidAmount(amount)) {
+    throw new Error("Withdrawal amount is not valid.");
+  }
+
+  const account = findAccountById(accountId);
+  if (!account) {
+    throw new Error("Account not found.");
+  }
+
+  if (account.balance < amount) {
+    throw new Error("Insufficient funds.");
+  }
+
+  account.balance -= amount;
+  account.transactions.push({ type: "withdrawal", amount, date: new Date() });
+};
+
+const transfer = (fromAccountId, toAccountId, amount) => {
+  if (!isValidAmount(amount)) {
+    throw new Error("Transfer amount is not valid.");
+  }
+
+  const fromAccount = findAccountById(fromAccountId);
+  const toAccount = findAccountById(toAccountId);
+
+  if (!fromAccount || !toAccount) {
+    throw new Error("One or both accounts not found.");
+  }
+
+  if (fromAccount.balance < amount) {
+    throw new Error("Insufficient funds in the source account.");
+  }
+
+  fromAccount.balance -= amount;
+  toAccount.balance += amount;
+  const now = new Date();
+  fromAccount.transactions.push({
+    type: "transfer",
+    amount,
+    date: now,
+    to: toAccountId,
+  });
+  toAccount.transactions.push({
+    type: "transfer",
+    amount,
+    date: now,
+    from: fromAccountId,
+  });
+};
+
+const applyInterest = (rate) => {
+  if (!isValidAmount(rate) || rate > 100) {
+    throw new Error("Interest rate is not valid.");
+  }
+
+  accounts.forEach((account) => {
+    const now = new Date();
+    const lastInterestDate = account.transactions
+      .filter((tx) => tx.type === "interest")
+      .sort((a, b) => b.date - a.date)[0]?.date;
+    const oneYearLater = new Date(lastInterestDate);
+    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+
+    if (lastInterestDate && now < oneYearLater) {
+      console.log(
+        `Interest already applied in the last year for account ID: ${account.id}`
+      );
+      return;
+    }
+
+    const interest = (account.balance * rate) / 100;
+    account.balance += interest;
+    account.transactions.push({
+      type: "interest",
+      amount: interest,
+      date: new Date(),
+    });
+  });
+};
+
+const applyFees = (feeAmount) => {
+  if (!isValidAmount(feeAmount)) {
+    throw new Error("Fee amount is not valid.");
+  }
+
+  accounts.forEach((account) => {
+    if (account.balance < feeAmount) {
+      console.log(
+        `Insufficient funds to apply fees for account ID: ${account.id}`
+      );
+      return;
+    }
+    const now = new Date();
+    const lastFeeDate = account.transactions
+      .filter((tx) => tx.type === "fee")
+      .sort((a, b) => b.date - a.date)[0]?.date;
+    const oneMonthLater = new Date(lastFeeDate);
+    oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+
+    if (lastFeeDate && now < oneMonthLater) {
+      console.log(
+        `Fees already applied in the last month for account ID: ${account.id}`
+      );
+      return;
+    }
+
+    account.balance -= feeAmount;
+    account.transactions.push({
+      type: "fee",
+      amount: feeAmount,
+      date: new Date(),
+    });
+  });
+};
+
+const displayAccountBalance = (accountId) => {
+  const account = findAccountById(accountId);
+
+  if (!account) {
+    throw new Error("Account not found.");
+  }
+
+  console.log(
+    `Account ID: ${account.id}, Balance: ${account.balance.toFixed(2)}€`
   );
+};
+
+const displayAccountTransactionsHistory = (accountId) => {
+  const account = findAccountById(accountId);
+
+  if (!account) {
+    throw new Error("Account not found.");
+  }
+
+  console.log(`Transaction History for Account ID: ${account.id}`);
+  account.transactions.forEach((tx) => {
+    console.log(
+      `${tx.date.toISOString()} - ${tx.type} - ${tx.amount.toFixed(2)}€${
+        tx.to ? " to " + tx.to : ""
+      }${tx.from ? " from " + tx.from : ""}`
+    );
+  });
+};
+
+const displayClientTotalBalance = (clientId) => {
+  const clientAccounts = accounts.filter(
+    (account) => account.clientId === clientId
+  );
+
+  if (clientAccounts.length === 0) {
+    throw new Error("Client has no accounts.");
+  }
+
   const totalBalance = clientAccounts.reduce(
-    (sum, acc) => sum + acc.balance,
+    (sum, account) => sum + account.balance,
     0
   );
-  return totalBalance;
+  console.log(
+    `Client ID: ${clientId}, Total Balance Across All Accounts: ${totalBalance.toFixed(
+      2
+    )}€`
+  );
 };
 
-/*
- * Afficher le solde total de la banque
- */
-const globalBankBalance = () => {
-  const globalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
-  return globalBalance;
+const displayBankTotalBalance = () => {
+  const totalBalance = accounts.reduce(
+    (sum, account) => sum + account.balance,
+    0
+  );
+  console.log(
+    `Total Balance Across All Accounts in the Bank: ${totalBalance.toFixed(2)}€`
+  );
 };
