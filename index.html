@@ -4,10 +4,69 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mini Bank</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div id="app">
-      <h1>Bienvenue sur la mini banque</h1>
+      <h1>Banque</h1>
+
+      <section id="clients-section">
+        <h2>Clients</h2>
+
+        <div id="create-client">
+          <button id="create-client-btn">Créer un nouveau client</button>
+
+          <div id="client-form" style="display: none;">
+            <input type="text" id="client-first-name" placeholder="Prénom" />
+            <input type="text" id="client-last-name" placeholder="Nom" />
+          <button id="submit-client-btn">Ajouter le client</button>
+        </div>
+      </section>
+      
+      <section id="accounts-section">
+        <h2>Comptes Clients</h2>
+
+        <div id="create-account">
+          <button id="create-account-btn">Créer un nouveau compte</button>
+  
+          <div id="account-form" style="display: none;">
+            <input type="text" id="account-owner" placeholder="Id client" />
+            <input type="number" id="initial-balance" placeholder="Solde" />
+            <button id="submit-account-btn">Créer le compte</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="deposits-section">
+        <h2>Dépôts</h2>
+
+        <div id="deposit-form">
+          <input type="text" id="deposit-account-id" placeholder="Id compte" />
+          <input type="number" id="deposit-amount" placeholder="Montant" />
+          <button id="submit-deposit-btn">Effectuer le dépôt</button>
+        </div>
+      </section>
+
+      <section id="withdrawals-section">
+        <h2>Retraits</h2>
+
+        <div id="withdrawal-form">
+          <input type="text" id="withdrawal-account-id" placeholder="Id compte" />
+          <input type="number" id="withdrawal-amount" placeholder="Montant" />
+          <button id="submit-withdrawal-btn">Effectuer le retrait</button>
+        </div>
+      </section>
+
+      <section id="transfers-section">
+        <h2>Transferts</h2>
+
+        <div id="transfer-form">
+          <input type="text" id="transfer-from-account-id" placeholder="Id compte envoyeur" />
+          <input type="text" id="transfer-to-account-id" placeholder="Id compte receveur" />
+          <input type="number" id="transfer-amount" placeholder="Montant" />
+          <button id="submit-transfer-btn">Effectuer le transfert</button>
+        </div>
+      </section>
     </div>
     <script src="index.js"></script>
   </body>
